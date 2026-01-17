@@ -5,6 +5,7 @@ import { Dashboard } from '../modules/learn/Dashboard';
 import { Dictionary } from '../modules/learn/Dictionary';
 import { Practice } from '../modules/learn/Practice';
 import { Profile } from '../modules/learn/Profile';
+import { ModuleDetailView } from '../modules/learn/ModuleDetailView';
 import { Player } from '../modules/interpreter-video/Player';
 import { LandingPage } from '../modules/landing/LandingPage';
 import { LoginPage } from '../modules/auth/LoginPage';
@@ -47,7 +48,7 @@ const router = createBrowserRouter([
                 children: [
                     {
                         index: true, // /app
-                        element: <Dashboard />,
+                        element: <Navigate to="/learn" replace />,
                     },
                     {
                         path: 'dictionary', // /app/dictionary
@@ -64,7 +65,21 @@ const router = createBrowserRouter([
                 ],
             },
             {
-                path: 'learn/:lessonId', // /app/learn/:id
+                path: 'learn', // /app/learn (module list)
+                element: <Layout />,
+                children: [
+                    {
+                        index: true,
+                        element: <Dashboard />,
+                    },
+                    {
+                        path: 'module/:moduleId', // /app/learn/module/:moduleId
+                        element: <ModuleDetailView />,
+                    },
+                ],
+            },
+            {
+                path: 'lesson/:lessonId', // /app/lesson/:id (legacy route for video player)
                 element: <Player />,
             }
         ]
