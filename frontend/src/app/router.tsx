@@ -9,17 +9,17 @@ import { ModuleDetailView } from '../modules/learn/ModuleDetailView';
 import { Player } from '../modules/interpreter-video/Player';
 import { LandingPage } from '../modules/landing/LandingPage';
 import { LoginPage } from '../modules/auth/LoginPage';
-import { useAuthStore } from '../shared/authStore';
+import { useUser } from '../shared/UserContext';
 
 // Protected Route Guard
 const ProtectedRoute = () => {
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const { isAuthenticated } = useUser();
     return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 // Public Only Guard (prevents logged in users from seeing landing/login)
 const PublicRoute = () => {
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const { isAuthenticated } = useUser();
     return !isAuthenticated ? <Outlet /> : <Navigate to="/app" replace />;
 };
 
