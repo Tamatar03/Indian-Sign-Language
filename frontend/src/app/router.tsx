@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
 import { Layout } from '../ui/Layout';
 import { Dashboard } from '../modules/learn/Dashboard';
@@ -48,7 +48,7 @@ const router = createBrowserRouter([
                 children: [
                     {
                         index: true, // /app
-                        element: <Navigate to="/learn" replace />,
+                        element: <Navigate to="learn" replace />,
                     },
                     {
                         path: 'dictionary', // /app/dictionary

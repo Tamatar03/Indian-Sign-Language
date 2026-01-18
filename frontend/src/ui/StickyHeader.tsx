@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Flame, User } from 'lucide-react';
 
 interface StickyHeaderProps {
@@ -10,7 +10,7 @@ export function StickyHeader({ streak = 0 }: StickyHeaderProps) {
         <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-white/90 border-b border-slate-100">
             <div className="max-w-md mx-auto px-4 h-16 flex items-center justify-between">
                 {/* Brand */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 md:hidden">
                     <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                         <span className="text-white font-bold text-lg">ISL</span>
                     </div>

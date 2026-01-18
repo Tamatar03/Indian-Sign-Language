@@ -17,7 +17,7 @@ export function ModuleDetailView() {
       <div className="flex flex-col items-center justify-center p-8 space-y-4">
         <h2 className="text-2xl font-bold text-slate-700">Module not found</h2>
         <button
-          onClick={() => navigate('/learn')}
+          onClick={() => navigate('/app/learn')}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Back to Modules
@@ -52,7 +52,7 @@ export function ModuleDetailView() {
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <button
-          onClick={() => navigate('/learn')}
+          onClick={() => navigate('/app/learn')}
           className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
           aria-label="Back to modules"
         >
@@ -60,7 +60,7 @@ export function ModuleDetailView() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        
+
         <div className="flex items-center gap-3">
           <span className="text-4xl">{module.icon}</span>
           <div>

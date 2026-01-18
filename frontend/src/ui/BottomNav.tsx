@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Home, Book, Zap, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { clsx } from 'clsx';
@@ -15,7 +15,7 @@ export function BottomNav() {
     ];
 
     return (
-        <nav className="fixed bottom-0 w-full bg-white border-t border-slate-200 safe-area-bottom z-50">
+        <nav className="fixed bottom-0 w-full bg-white border-t border-slate-200 safe-area-bottom z-50 md:hidden">
             <div className="max-w-md mx-auto grid grid-cols-4 h-16">
                 {navItems.map((item) => {
                     const isActive = currentPath === item.path;
