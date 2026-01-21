@@ -24,7 +24,7 @@ export default function FlashcardModal({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
-      
+
       if (e.key === 'ArrowRight') {
         onNext();
       } else if (e.key === 'ArrowLeft') {
@@ -69,24 +69,53 @@ export default function FlashcardModal({
           {/* Label */}
           <h2 className="text-4xl font-bold text-gray-800 mb-6">{currentItem.label}</h2>
 
-          {/* GIF Placeholder */}
-          <div className="w-full aspect-video bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex items-center justify-center mb-6 overflow-hidden">
-            <img
-              src={currentItem.gifUrl}
-              alt={`Sign for ${currentItem.label}`}
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                // Fallback if GIF doesn't exist yet
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = `
-                  <div class="text-center p-8">
-                    <div class="text-6xl mb-4">🎬</div>
-                    <p class="text-gray-600 font-semibold">GIF Placeholder</p>
-                    <p class="text-gray-400 text-sm mt-2">${currentItem.label}</p>
-                  </div>
-                `;
-              }}
-            />
+          {/* Media Content */}
+          <div className="w-full flex flex-col items-center">
+            <div className="w-full aspect-video bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+              {currentItem.videoUrl ? (
+                <video
+                  key={currentItem.videoUrl}
+                  src={currentItem.videoUrl}
+                  className="w-full h-full object-contain"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement!.innerHTML = `
+                      <div class="text-center p-8">
+                        <div class="text-6xl mb-4">🚫</div>
+                        <p class="text-gray-600 font-semibold">Video not found</p>
+                        <p class="text-gray-400 text-sm mt-2 font-mono break-all">${currentItem.videoUrl}</p>
+                      </div>
+                    `;
+                  }}
+                />
+              ) : (
+                <img
+                  src={currentItem.gifUrl}
+                  alt={`Sign for ${currentItem.label}`}
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement!.innerHTML = `
+                      <div class="text-center p-8">
+                        <div class="text-6xl mb-4">🎬</div>
+                        <p class="text-gray-600 font-semibold">Media Placeholder</p>
+                        <p class="text-gray-400 text-sm mt-2">${currentItem.label}</p>
+                      </div>
+                    `;
+                  }}
+                />
+              )}
+            </div>
+            {/* Visual Debug Helper */}
+            {currentItem.videoUrl && (
+              <p className="text-red-500 text-xs font-mono mb-4">
+                Current Path: {currentItem.videoUrl}
+              </p>
+            )}
           </div>
 
           {/* Progress Indicator */}
@@ -99,11 +128,10 @@ export default function FlashcardModal({
             <button
               onClick={onPrevious}
               disabled={isFirst}
-              className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${
-                isFirst
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
-              }`}
+              className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${isFirst
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
+                }`}
               aria-label="Previous"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,11 +142,10 @@ export default function FlashcardModal({
             <button
               onClick={onNext}
               disabled={isLast}
-              className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${
-                isLast
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
-              }`}
+              className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${isLast
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
+                }`}
               aria-label="Next"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

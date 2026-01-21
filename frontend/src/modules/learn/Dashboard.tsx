@@ -36,6 +36,18 @@ const moduleStyles: Record<string, { bg: string; text: string; iconBg: string; b
         text: 'text-amber-600',
         iconBg: 'bg-amber-100',
         border: 'hover:border-amber-200'
+    },
+    'weeks': {
+        bg: 'hover:bg-cyan-50',
+        text: 'text-cyan-600',
+        iconBg: 'bg-cyan-100',
+        border: 'hover:border-cyan-200'
+    },
+    'months': {
+        bg: 'hover:bg-rose-50',
+        text: 'text-rose-600',
+        iconBg: 'bg-rose-100',
+        border: 'hover:border-rose-200'
     }
 };
 
