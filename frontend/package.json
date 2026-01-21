@@ -10,17 +10,18 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@mediapipe/camera_utils": "^0.3.1632432244",
+        "@mediapipe/drawing_utils": "^0.3.1620248257",
+        "@mediapipe/holistic": "^0.5.1635989137",
+        "axios": "^1.6.7",
+        "clsx": "^2.1.0",
+        "lucide-react": "^0.344.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.22.0",
-        "zustand": "^4.5.0",
-        "lucide-react": "^0.344.0",
-        "clsx": "^2.1.0",
+        "react-webcam": "^7.2.0",
         "tailwind-merge": "^2.2.1",
-        "@mediapipe/holistic": "^0.5.1635989137",
-        "@mediapipe/camera_utils": "^0.3.1632432244",
-        "@mediapipe/drawing_utils": "^0.3.1620248257",
-        "axios": "^1.6.7"
+        "zustand": "^4.5.0"
     },
     "devDependencies": {
         "@types/react": "^18.2.56",
