@@ -2,11 +2,11 @@
 import { Home, Book, Zap, User, LogOut } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
-import { useAuthStore } from '../shared/authStore';
+import { useUser } from '../shared/UserContext';
 
 export function Sidebar() {
     const navigate = useNavigate();
-    const logout = useAuthStore((state) => state.logout);
+    const { logout } = useUser();
 
     const navItems = [
         { icon: Home, label: 'Home', path: '/app' },
@@ -17,7 +17,7 @@ export function Sidebar() {
 
     const handleLogout = () => {
         logout();
-        navigate('/login');
+        navigate('/');
     };
 
     return (

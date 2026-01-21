@@ -1,7 +1,8 @@
-import React from 'react';
+
 import { Button } from '../../ui/Button';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Zap, Globe } from 'lucide-react';
+import heroImage from '../../assets/images/image_6.png';
 
 export function LandingPage() {
     const navigate = useNavigate();
@@ -43,13 +44,10 @@ export function LandingPage() {
                 <div className="flex-1 relative">
                     <div className="aspect-square bg-blue-50 rounded-full flex items-center justify-center relative overflow-hidden">
                         {/* Decorative circles */}
-                        <div className="absolute w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-50 top-0 right-0" />
-                        <div className="absolute w-64 h-64 bg-orange-100 rounded-full blur-3xl opacity-50 bottom-0 left-0" />
-
                         <img
-                            src="https://illustrations.popsy.co/blue/waving.svg"
-                            alt="Sign Language Illustration"
-                            className="relative z-10 w-3/4 h-3/4 object-contain"
+                            src={heroImage}
+                            alt="Indian Sign Language Banner - Woman signing 'Connect. Communicate. Belong.'"
+                            className="w-full h-full object-cover"
                         />
                     </div>
                 </div>

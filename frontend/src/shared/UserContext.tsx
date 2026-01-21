@@ -29,8 +29,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     // Load from LocalStorage on mount
     useEffect(() => {
-        const storedUser = localStorage.getItem('isl_user');
-        const storedProgress = localStorage.getItem('isl_progress');
+        const storedUser = localStorage.getItem('user');
+        const storedProgress = localStorage.getItem('progress');
 
         if (storedUser) {
             setUser(JSON.parse(storedUser));
@@ -43,14 +43,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
     // Persist changes
     useEffect(() => {
         if (user) {
-            localStorage.setItem('isl_user', JSON.stringify(user));
+            localStorage.setItem('user', JSON.stringify(user));
         } else {
-            localStorage.removeItem('isl_user');
+            localStorage.removeItem('user');
         }
     }, [user]);
 
     useEffect(() => {
-        localStorage.setItem('isl_progress', JSON.stringify(progress));
+        localStorage.setItem('progress', JSON.stringify(progress));
     }, [progress]);
 
     const login = (name: string, email: string) => {
@@ -64,8 +64,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const logout = () => {
         setUser(null);
         setProgress({});
-        localStorage.removeItem('isl_user');
-        localStorage.removeItem('isl_progress');
+        localStorage.removeItem('user');
+        localStorage.removeItem('progress');
     };
 
     const markLessonComplete = (moduleId: string) => {
