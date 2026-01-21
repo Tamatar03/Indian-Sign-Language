@@ -14,11 +14,19 @@ interface Progress {
 interface UserContextType {
     user: User | null;
     progress: Progress;
+    quizScores: Record<string, number>;
     isAuthenticated: boolean;
     login: (name: string, email: string) => void;
     logout: () => void;
     markLessonComplete: (moduleId: string) => void;
     getModuleProgress: (moduleId: string) => number; // Returns count
+    saveQuizScore: (moduleId: string, score: number) => void;
+    getQuizScore: (moduleId: string) => number;
+    resetQuizScore: (moduleId: string) => void;
+    // New Learning Stats
+    learnedItems: Record<string, string[]>;
+    markItemAsViewed: (moduleId: string, itemId: string) => void;
+    getLearningProgress: (moduleId: string, totalItems: number) => number;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -26,17 +34,27 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [progress, setProgress] = useState<Progress>({});
+    const [quizScores, setQuizScores] = useState<Record<string, number>>({});
+    const [learnedItems, setLearnedItems] = useState<Record<string, string[]>>({}); // moduleId -> [itemIds]
 
     // Load from LocalStorage on mount
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         const storedProgress = localStorage.getItem('progress');
+        const storedQuizScores = localStorage.getItem('quiz_scores');
+        const storedLearnedItems = localStorage.getItem('learned_items');
 
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         }
         if (storedProgress) {
             setProgress(JSON.parse(storedProgress));
+        }
+        if (storedQuizScores) {
+            setQuizScores(JSON.parse(storedQuizScores));
+        }
+        if (storedLearnedItems) {
+            setLearnedItems(JSON.parse(storedLearnedItems));
         }
     }, []);
 
@@ -53,6 +71,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('progress', JSON.stringify(progress));
     }, [progress]);
 
+    useEffect(() => {
+        localStorage.setItem('quiz_scores', JSON.stringify(quizScores));
+    }, [quizScores]);
+
+    useEffect(() => {
+        localStorage.setItem('learned_items', JSON.stringify(learnedItems));
+    }, [learnedItems]);
+
     const login = (name: string, email: string) => {
         setUser({ name, email });
         // Initialize progress if empty (optional)
@@ -64,8 +90,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const logout = () => {
         setUser(null);
         setProgress({});
+        setQuizScores({});
+        setLearnedItems({});
         localStorage.removeItem('user');
         localStorage.removeItem('progress');
+        localStorage.removeItem('quiz_scores');
+        localStorage.removeItem('learned_items');
     };
 
     const markLessonComplete = (moduleId: string) => {
@@ -78,8 +108,53 @@ export function UserProvider({ children }: { children: ReactNode }) {
         });
     };
 
+    // --- New Functionality: Track Viewed Items ---
+    const markItemAsViewed = (moduleId: string, itemId: string) => {
+        setLearnedItems((prev) => {
+            const currentModuleItems = prev[moduleId] || [];
+            if (currentModuleItems.includes(itemId)) return prev; // Already viewed
+
+            return {
+                ...prev,
+                [moduleId]: [...currentModuleItems, itemId]
+            };
+        });
+    };
+
+    const getLearningProgress = (moduleId: string, totalItems: number) => {
+        const viewedCount = (learnedItems[moduleId] || []).length;
+        if (totalItems === 0) return 0;
+        return Math.min(100, Math.round((viewedCount / totalItems) * 100));
+    };
+
+    const saveQuizScore = (moduleId: string, score: number) => {
+        setQuizScores((prev) => {
+            const currentBest = prev[moduleId] || 0;
+            // Only update if the new score is better
+            if (score > currentBest) {
+                return {
+                    ...prev,
+                    [moduleId]: score,
+                };
+            }
+            return prev;
+        });
+    };
+
     const getModuleProgress = (moduleId: string) => {
         return progress[moduleId] || 0;
+    };
+
+    const getQuizScore = (moduleId: string) => {
+        return quizScores[moduleId] || 0;
+    };
+
+    const resetQuizScore = (moduleId: string) => {
+        setQuizScores((prev) => {
+            const newScores = { ...prev };
+            delete newScores[moduleId]; // or set to 0, but deleting works too
+            return newScores;
+        });
     };
 
     return (
@@ -87,11 +162,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
             value={{
                 user,
                 progress,
+                quizScores,
+                learnedItems,
                 isAuthenticated: !!user,
                 login,
                 logout,
                 markLessonComplete,
-                getModuleProgress
+                getModuleProgress,
+                saveQuizScore,
+                getQuizScore,
+                resetQuizScore,
+                markItemAsViewed,
+                getLearningProgress
             }}
         >
             {children}

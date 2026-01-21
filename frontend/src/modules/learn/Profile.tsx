@@ -1,25 +1,38 @@
 
 import { useUser } from '../../shared/UserContext';
 import { modules } from '../../data/learningData';
-import { Trophy, Star, Zap } from 'lucide-react';
+import { Trophy, Star, Zap, RotateCcw } from 'lucide-react';
 import { Card } from '../../ui/Card';
+import { Button } from '../../ui/Button';
 
 export function Profile() {
-    const { user, progress } = useUser();
+    const { user, getQuizScore, resetQuizScore } = useUser();
 
-    // Calculate Stats
-    const totalItems = modules.reduce((acc, module) => acc + module.items.length, 0);
-    const totalCompleted = Object.values(progress).reduce((acc, count) => acc + count, 0);
-    const completionPercentage = Math.round((totalCompleted / Math.max(totalItems, 1)) * 100);
+    // Determine Level based on total mastered modules
+    const calculateStats = () => {
+        let totalMastered = 0;
+        let totalPercentage = 0;
 
-    // Calculate Modules Completed (100% finished)
-    const modulesCompleted = modules.filter(m => (progress[m.id] || 0) >= m.items.length).length;
+        modules.forEach(m => {
+            const bestScore = getQuizScore(m.id);
+            const total = Math.min(10, m.items.length); // Logic matches Practice.tsx
+            const percent = Math.min(100, Math.round((bestScore / total) * 100));
 
-    // Determine Level
-    let level = "Beginner";
-    if (completionPercentage > 30) level = "Intermediate";
-    if (completionPercentage > 80) level = "Advanced";
-    if (completionPercentage === 100) level = "Expert";
+            if (percent === 100) totalMastered++;
+            totalPercentage += percent;
+        });
+
+        const avgProgress = Math.round(totalPercentage / modules.length);
+
+        let level = "Beginner";
+        if (avgProgress > 30) level = "Intermediate";
+        if (avgProgress > 70) level = "Advanced";
+        if (avgProgress > 95) level = "Expert";
+
+        return { totalMastered, avgProgress, level };
+    };
+
+    const { totalMastered, avgProgress, level } = calculateStats();
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -43,16 +56,16 @@ export function Profile() {
                     {/* Quick Stats Grid (In Header) */}
                     <div className="flex gap-4 md:gap-8">
                         <div className="text-center">
-                            <div className="text-3xl font-bold">{modulesCompleted}</div>
-                            <div className="text-xs text-blue-200 uppercase tracking-wider font-semibold">Modules</div>
+                            <div className="text-3xl font-bold">{totalMastered}</div>
+                            <div className="text-xs text-blue-200 uppercase tracking-wider font-semibold">Mastered</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-3xl font-bold">{totalCompleted}</div>
-                            <div className="text-xs text-blue-200 uppercase tracking-wider font-semibold">Lessons</div>
+                            <div className="text-3xl font-bold">{modules.length}</div>
+                            <div className="text-xs text-blue-200 uppercase tracking-wider font-semibold">Total Modules</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-3xl font-bold">{completionPercentage}%</div>
-                            <div className="text-xs text-blue-200 uppercase tracking-wider font-semibold">Progress</div>
+                            <div className="text-3xl font-bold">{avgProgress}%</div>
+                            <div className="text-xs text-blue-200 uppercase tracking-wider font-semibold">Avg. Progress</div>
                         </div>
                     </div>
                 </div>
@@ -65,36 +78,73 @@ export function Profile() {
                 <div className="lg:col-span-2 space-y-6">
                     <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                         <Zap className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                        Module Progress
+                        Module Mastery
                     </h2>
 
                     <div className="space-y-4">
                         {modules.map(module => {
-                            const completed = progress[module.id] || 0;
-                            const total = module.items.length;
-                            const percentage = Math.min(Math.round((completed / total) * 100), 100);
+                            const bestScore = getQuizScore(module.id);
+                            // We use the same 'smart quiz length' logic: min(10, totalItems)
+                            const maxScore = Math.min(10, module.items.length);
+                            const percentage = Math.min(100, Math.round((bestScore / maxScore) * 100));
+                            const isMastered = percentage === 100;
 
                             return (
-                                <Card key={module.id} className="p-4 flex items-center gap-4 hover:shadow-md transition-all">
-                                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-2xl">
-                                        {module.icon}
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="flex justify-between mb-2">
-                                            <h3 className="font-bold text-slate-800">{module.name}</h3>
-                                            <span className="text-sm font-medium text-slate-600">{completed}/{total}</span>
+                                <Card
+                                    key={module.id}
+                                    className={`p-5 transition-all ${isMastered ? 'bg-yellow-50/50 border-yellow-200' : 'hover:shadow-md'}`}
+                                >
+                                    {isMastered ? (
+                                        // STATE B: Completed / Mastered
+                                        <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                                            <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center text-3xl shadow-sm border-2 border-yellow-200">
+                                                🏆
+                                            </div>
+                                            <div className="flex-1 space-y-1">
+                                                <h3 className="font-bold text-slate-800 text-lg">{module.name} Mastered!</h3>
+                                                <p className="text-yellow-700 font-medium text-sm animate-pulse">
+                                                    Congratulations! You have completed this module.
+                                                </p>
+                                            </div>
+                                            <Button
+                                                variant="secondary"
+                                                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 text-xs py-2 h-auto"
+                                                onClick={() => {
+                                                    if (confirm('Are you sure you want to reset your progress for this module?')) {
+                                                        resetQuizScore(module.id);
+                                                    }
+                                                }}
+                                            >
+                                                <RotateCcw className="w-3 h-3 mr-1" />
+                                                Reset Progress
+                                            </Button>
                                         </div>
-                                        {/* Progress Bar */}
-                                        <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out"
-                                                style={{ width: `${percentage}%` }}
-                                            />
+                                    ) : (
+                                        // STATE A: In Progress
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-2xl">
+                                                {module.icon}
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex justify-between mb-2">
+                                                    <h3 className="font-bold text-slate-800">{module.name}</h3>
+                                                    <span className="text-sm font-medium text-slate-600">
+                                                        {bestScore} / {maxScore} pts
+                                                    </span>
+                                                </div>
+                                                {/* Progress Bar */}
+                                                <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out"
+                                                        style={{ width: `${percentage}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="text-sm font-bold text-slate-400 w-12 text-right">
+                                                {percentage}%
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="text-sm font-bold text-slate-400 w-12 text-right">
-                                        {percentage}%
-                                    </div>
+                                    )}
                                 </Card>
                             )
                         })}
@@ -118,13 +168,15 @@ export function Profile() {
                         </div>
                     </Card>
 
-                    <Card className="p-6 text-center space-y-4 opacity-75 grayscale hover:grayscale-0 hover:opacity-100 transition-all cursor-pointer">
+                    <Card className={`p-6 text-center space-y-4 transition-all border outline-2 ${totalMastered >= 3 ? 'bg-white border-purple-200 shadow-md' : 'opacity-75 grayscale border-slate-100'}`}>
                         <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto text-3xl">
                             🎓
                         </div>
                         <div>
-                            <h3 className="font-bold text-slate-800">Master Scholar</h3>
-                            <p className="text-sm text-slate-500">Locked: Complete 50 lessons</p>
+                            <h3 className="font-bold text-slate-800">Trifecta Master</h3>
+                            <p className="text-sm text-slate-500">
+                                {totalMastered >= 3 ? "Unlocked! You mastered 3 modules." : `Locked: Master ${3 - totalMastered} more modules`}
+                            </p>
                         </div>
                     </Card>
                 </div>

@@ -2,8 +2,9 @@
 import { Card } from '../../ui/Card';
 import { modules } from '../../data/learningData';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, ArrowRight, Sparkles } from 'lucide-react';
+import { BookOpen, ArrowRight, Sparkles, CheckCircle } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useUser } from '../../shared/UserContext';
 
 // Color mapping for modules to give them distinct visual identities
 const moduleStyles: Record<string, { bg: string; text: string; iconBg: string; border: string }> = {
@@ -53,6 +54,7 @@ const moduleStyles: Record<string, { bg: string; text: string; iconBg: string; b
 
 export function Dashboard() {
     const navigate = useNavigate();
+    const { getLearningProgress } = useUser();
 
     const handleModuleClick = (moduleId: string) => {
         navigate(`/app/learn/module/${moduleId}`);
@@ -78,6 +80,9 @@ export function Dashboard() {
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {modules.map((module) => {
                     const style = moduleStyles[module.id] || moduleStyles['alphabets'];
+                    const progress = getLearningProgress(module.id, module.items.length);
+                    const isCompleted = progress === 100;
+
                     return (
                         <Card
                             key={module.id}
@@ -90,8 +95,13 @@ export function Dashboard() {
                             <div className="flex flex-col md:flex-row items-center md:items-stretch p-6 gap-6">
                                 {/* Left Section: Icon & Text */}
                                 <div className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-6 flex-1">
-                                    <div className={clsx("w-20 h-20 shrink-0 rounded-2xl flex items-center justify-center text-4xl shadow-sm", style.iconBg)}>
+                                    <div className={clsx("w-20 h-20 shrink-0 rounded-2xl flex items-center justify-center text-4xl shadow-sm relative", style.iconBg)}>
                                         {module.icon}
+                                        {isCompleted && (
+                                            <div className="absolute -top-2 -right-2 bg-green-500 text-white p-1 rounded-full shadow-md">
+                                                <CheckCircle className="w-4 h-4" />
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="flex-1 space-y-2">
@@ -117,11 +127,18 @@ export function Dashboard() {
                                     {/* Progress Bar */}
                                     <div className="space-y-2 w-full">
                                         <div className="flex justify-between text-xs font-medium text-slate-400">
-                                            <span>Progress</span>
-                                            <span>0%</span>
+                                            <span>
+                                                {isCompleted ? 'Course Completed' : 'Course Progress'}
+                                            </span>
+                                            <span className={clsx(isCompleted ? "text-green-600 font-bold" : "")}>
+                                                {progress}%
+                                            </span>
                                         </div>
                                         <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                                            <div className="h-full bg-blue-500 w-0 transition-all duration-500" />
+                                            <div
+                                                className={clsx("h-full transition-all duration-1000 ease-out", isCompleted ? "bg-green-500" : "bg-blue-500")}
+                                                style={{ width: `${progress}%` }}
+                                            />
                                         </div>
                                     </div>
 
@@ -130,7 +147,7 @@ export function Dashboard() {
                                         "flex items-center justify-center md:justify-end gap-2 text-sm font-bold bg-white p-2 rounded-xl transition-all group-hover:gap-3",
                                         style.text
                                     )}>
-                                        <span>Start Learning</span>
+                                        <span>{isCompleted ? 'Review Course' : 'Continue Learning'}</span>
                                         <div className={clsx("w-8 h-8 rounded-full flex items-center justify-center transition-colors", style.iconBg)}>
                                             <ArrowRight className="w-4 h-4" />
                                         </div>

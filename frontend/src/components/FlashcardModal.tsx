@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { FlashcardItem } from '../data/learningData';
+import { useUser } from '../shared/UserContext';
+import { modules } from '../data/learningData';
 
 interface FlashcardModalProps {
   isOpen: boolean;
@@ -20,6 +22,25 @@ export default function FlashcardModal({
   onNext,
   onPrevious,
 }: FlashcardModalProps) {
+  const { markItemAsViewed } = useUser();
+
+  // Find module ID for currentItem (since item object doesn't have parent ID directly)
+  // Optimization: In a larger app, we'd pass moduleId as prop. Here we can lookup.
+  const getModuleId = (itemId: string) => {
+    const parentModule = modules.find(m => m.items.some(i => i.id === itemId));
+    return parentModule?.id || 'unknown';
+  };
+
+  // Track View
+  useEffect(() => {
+    if (isOpen && currentItem) {
+      const moduleId = getModuleId(currentItem.id);
+      if (moduleId !== 'unknown') {
+        markItemAsViewed(moduleId, currentItem.id);
+      }
+    }
+  }, [isOpen, currentItem, markItemAsViewed]);
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
